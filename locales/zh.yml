@@ -92,6 +92,28 @@ tools:
     button:
       copy: 复制
       refresh: 刷新
+
+  jwt-generator:
+    title: JWT 生成器
+    description: 生成您想要的算法的 JWT（JSON Web Token）令牌。
+
+    algorithm:
+      label: 签名或加密算法
+      placeholder: 选择加密算法...
+    encoding:
+      label: 令牌编码类型
+      placeholder: 选择结果编码...
+    payload:
+      label: 生成 JWT 的 JSON 有效负载
+      placeholder: 粘贴您的有效负载...
+    secret:
+      label: 秘钥
+      placeholder: '输入秘钥...'
+    jwt:
+      label: JSON WEB TOKEN
+      placeholder: 'JWT 的结果...'
+    copied: JWT 复制到剪贴板
+
   percentage-calculator:
     title: 百分比计算器
     description: 轻松计算从一个值到另一个值的百分比，或从百分比到值的百分比。
