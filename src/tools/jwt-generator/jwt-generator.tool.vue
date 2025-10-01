@@ -42,7 +42,8 @@ watch(
         .setExpirationTime(parsedPayload.exp || undefined)
         .sign(decodedSecret);
       jwt.value = token;
-    } catch (e) {
+    }
+    catch (e) {
       jwt.value = `Error: ${(e as Error).message}`;
     }
   },
@@ -106,7 +107,9 @@ const { copy } = useCopy({ source: jwt });
       mb-3
     />
     <div flex justify-center>
-      <c-button @click="copy()"> {{ t('tools.jwt-generator.jwt.copied') }} </c-button>
+      <c-button @click="copy()">
+        {{ t('tools.jwt-generator.jwt.copied') }}
+      </c-button>
     </div>
   </div>
 </template>
