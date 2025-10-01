@@ -93,6 +93,28 @@ tools:
     button:
       copy: Copy
       refresh: Refresh
+
+  jwt-generator:
+    title: JWT generator
+    description: Generate JWT (JSON Web Token) tokens with the algorithm you want.
+
+    algorithm:
+      label: Signature or encryption algorithm
+      placeholder: Select an encryption algorithm...
+    encoding:
+      label: Token encoding type
+      placeholder: Select the result encoding...
+    payload:
+      label: JSON payload to generate the JWT
+      placeholder: Paste your payload here...
+    secret:
+      label: Secret key
+      placeholder: 'Enter the secret key...'
+    jwt:
+      label: JSON WEB TOKEN
+      placeholder: 'The result of the JWT...'
+    copied: JWT copied to the clipboard
+
   percentage-calculator:
     title: Percentage calculator
     description: Easily calculate percentages from a value to another value, or from a percentage to a value.
