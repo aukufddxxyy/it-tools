@@ -7,6 +7,8 @@ const { t } = useI18n();
 
 const svgText = ref('');
 const zoom = ref(1.6);
+// when true, compute zoom automatically to fit SVG into canvas; becomes false when user adjusts zoom
+const zoomAuto = ref(true);
 const backgroundColor = ref('#ffffff');
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let renderTimer: number | null = null;
@@ -97,10 +99,29 @@ async function renderSvg() {
 
   const { width, height } = parseSvgSize(text);
   const ratio = window.devicePixelRatio || 1;
-  const z = Math.max(0.1, zoom.value || 1);
-  // use fixed canvas size selectable by user (canvasSize)
+  // compute auto-fit scale to fit the svg into the CSS canvas size
   const baseSize = Math.max(50, Math.round(canvasSize.value || 300));
+  const baseSizeCss = baseSize; // CSS pixels
+  const fitScale = (() => {
+    try {
+      const w = Math.max(1, width || 1);
+      const h = Math.max(1, height || 1);
+      const raw = Math.min(baseSizeCss / w, baseSizeCss / h) * 0.95; // padding
+      const clamped = Math.max(0.01, Math.min(raw, 8));
+      // round to 0.01 precision
+      const rounded = Math.round(clamped * 100) / 100;
+      return rounded;
+    } catch (e) {
+      return 1;
+    }
+  })();
 
+  // choose effective zoom: auto-fit when zoomAuto is true, otherwise use manual zoom.value
+  const z = zoomAuto.value ? fitScale : Math.max(0.01, Math.min(8, zoom.value || 1));
+  // keep slider in sync when auto mode is active
+  if (zoomAuto.value) {
+    zoom.value = z;
+  }
   // canvas pixel size (account for device pixel ratio), keep square
   canvas.width = Math.max(1, Math.round(baseSize * ratio));
   canvas.height = canvas.width;
@@ -114,15 +135,15 @@ async function renderSvg() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.restore();
 
-  // Ensure SVG has xmlns (some browsers require it when used as image source)
+  // Ensure SVG has xmlns (some browsers require it when used as image source).
+  // Only insert when the original text does NOT already contain an xmlns attribute.
   let svgTextWithNs = text;
   try {
-    svgTextWithNs = text.replace(/<svg(\s|>)/i, (m) => {
-      if (/xmlns=/.test(m)) {
-        return m;
-      }
-      return '<svg xmlns="http://www.w3.org/2000/svg" ';
-    });
+    if (!/xmlns\s*=/.test(text)) {
+      svgTextWithNs = text.replace(/<svg(\s|>)/i, '<svg xmlns="http://www.w3.org/2000/svg" ');
+    } else {
+      svgTextWithNs = text;
+    }
   } catch (e) {
     svgTextWithNs = text;
   }
@@ -188,6 +209,10 @@ async function renderSvg() {
   img.src = url;
 }
 
+function markZoomManual() {
+  zoomAuto.value = false;
+}
+
 watch([svgText, zoom, backgroundColor, canvasSize], () => {
   if (renderTimer) {
     clearTimeout(renderTimer);
@@ -195,6 +220,11 @@ watch([svgText, zoom, backgroundColor, canvasSize], () => {
   renderTimer = window.setTimeout(() => {
     renderSvg();
   }, 200) as unknown as number;
+});
+
+// when user pastes/changes svgText, re-enable auto-zoom so the new svg fits by default
+watch(svgText, () => {
+  zoomAuto.value = true;
 });
 
 onMounted(() => {
@@ -272,14 +302,15 @@ function downloadPng() {
         <div class="svg-preview-controls" mb-2>
           <div class="control-row">
             <label class="svg-preview-zoom-label" :style="labelStyle">{{ t('tools.svg-preview.zoom.label') }}</label>
-            <n-slider v-model:value="zoom" class="svg-zoom-slider" :min="0.2" :max="4" :step="0.1" />
+              <n-slider v-model:value="zoom" class="svg-zoom-slider" :min="0.01" :max="8" :step="0.01" @update:value="markZoomManual" />
             <n-input-number
               v-model:value="zoom"
               class="svg-zoom-input"
-              :min="0.2"
-              :max="4"
-              :step="0.1"
+              :min="0.01"
+              :max="8"
+              :step="0.01"
               :show-button="false"
+              @change="markZoomManual"
             />
 
             <div style="width: 12px"></div>
