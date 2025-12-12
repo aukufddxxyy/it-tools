@@ -136,6 +136,12 @@ tools:
       tooltip: Adjust the preview zoom level
     emptyDownloadConfirmation: 'There is no SVG content. Do you want to download an empty image?'
     downloadError: 'Failed to download image'
+    background:
+      label: Background
+      placeholder: Select background color
+    canvas:
+      label: Canvas size
+      placeholder: Canvas size in pixels
 
   json-to-csv:
     title: JSON to CSV

@@ -7,17 +7,21 @@ const { t } = useI18n();
 
 const svgText = ref('');
 const zoom = ref(1.6);
+const backgroundColor = ref('#ffffff');
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let renderTimer: number | null = null;
 const themeVars = useThemeVars();
 const dialog = useDialog();
 const message = useMessage();
 
+const canvasSize = ref(300);
 const canvasStyle = computed(() => ({
   border: `1px solid ${themeVars.textColor1}`,
-  maxWidth: '100%',
-  height: 'auto',
+  width: `${canvasSize.value}px`,
+  height: `${canvasSize.value}px`,
   display: 'block',
+  borderRadius: '8px',
+  overflow: 'hidden',
 }));
 const downloadButtonStyle = computed(() => ({
   border: 'none',
@@ -25,6 +29,17 @@ const downloadButtonStyle = computed(() => ({
   color: themeVars.primaryColor,
 }));
 const labelStyle = computed(() => ({ color: themeVars.textColor1, fontWeight: 600 }));
+const presetColors = ['#ffffff', '#000000', '#f8fafc', '#fce7f3', '#fff7ed', '#eef2ff', '#ecfccb', 'transparent'];
+
+function setBg(c: string) {
+  backgroundColor.value = c;
+  // immediate re-render to reflect background change
+  try {
+    renderSvg();
+  } catch (e) {
+    // ignore
+  }
+}
 
 function parseSvgSize(svg: string) {
   try {
@@ -71,23 +86,33 @@ async function renderSvg() {
 
   const text = svgText.value || '';
   if (!text.trim()) {
+    // clear and fill with background color
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = backgroundColor.value || 'white';
+    // fill full pixel canvas
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     return;
   }
 
   const { width, height } = parseSvgSize(text);
   const ratio = window.devicePixelRatio || 1;
   const z = Math.max(0.1, zoom.value || 1);
-  // set actual pixel dimensions according to device ratio and zoom
-  canvas.width = Math.max(1, Math.round(width * ratio * z));
-  canvas.height = Math.max(1, Math.round(height * ratio * z));
-  // set CSS size according to zoom (keeps layout responsive)
-  canvas.style.width = `${Math.round(width * z)}px`;
-  canvas.style.height = `${Math.round(height * z)}px`;
+  // use fixed canvas size selectable by user (canvasSize)
+  const baseSize = Math.max(50, Math.round(canvasSize.value || 300));
 
-  // apply transform so drawing operations use scaled ratio
-  ctx.setTransform(ratio * z, 0, 0, ratio * z, 0, 0);
-  ctx.clearRect(0, 0, width, height);
+  // canvas pixel size (account for device pixel ratio), keep square
+  canvas.width = Math.max(1, Math.round(baseSize * ratio));
+  canvas.height = canvas.width;
+  // CSS size (square) — also kept in canvasStyle binding
+  canvas.style.width = `${baseSize}px`;
+  canvas.style.height = `${baseSize}px`;
+
+  // clear full pixel canvas using identity transform
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.restore();
 
   // Ensure SVG has xmlns (some browsers require it when used as image source)
   let svgTextWithNs = text;
@@ -116,7 +141,25 @@ async function renderSvg() {
   const img = new Image();
   img.onload = () => {
     try {
-      ctx.drawImage(img, 0, 0, width, height);
+      // draw centered: compute scaled svg size and offsets in CSS pixels
+      const scaledW = width * z;
+      const scaledH = height * z;
+      const baseSizeCss = canvas.width / ratio; // CSS pixels (canvas CSS size)
+      const tx = (baseSizeCss - scaledW) / 2;
+      const ty = (baseSizeCss - scaledH) / 2;
+
+      // fill background in pixel coords
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = backgroundColor.value || 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
+
+      // draw image scaled (scale only maps CSS->device pixels)
+      ctx.save();
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      ctx.drawImage(img, tx, ty, scaledW, scaledH);
+      ctx.restore();
     } catch (e) {
       console.error('Failed to draw SVG', e);
     }
@@ -145,7 +188,7 @@ async function renderSvg() {
   img.src = url;
 }
 
-watch([svgText, zoom], () => {
+watch([svgText, zoom, backgroundColor, canvasSize], () => {
   if (renderTimer) {
     clearTimeout(renderTimer);
   }
@@ -226,33 +269,70 @@ function downloadPng() {
 
     <div flex items-start gap-2>
       <div flex-1>
-        <div mb-2>
-          <strong>{{ t('tools.svg-preview.preview', 'Preview') }}</strong>
-        </div>
+        <div class="svg-preview-controls" mb-2>
+          <div class="control-row">
+            <label class="svg-preview-zoom-label" :style="labelStyle">{{ t('tools.svg-preview.zoom.label') }}</label>
+            <n-slider v-model:value="zoom" class="svg-zoom-slider" :min="0.2" :max="4" :step="0.1" />
+            <n-input-number
+              v-model:value="zoom"
+              class="svg-zoom-input"
+              :min="0.2"
+              :max="4"
+              :step="0.1"
+              :show-button="false"
+            />
 
-        <div class="svg-preview-controls" mb-2 flex items-center gap-2>
-          <label class="svg-preview-zoom-label" :style="labelStyle">{{ t('tools.svg-preview.zoom.label') }}</label>
-          <n-slider v-model:value="zoom" class="svg-zoom-slider" :min="0.2" :max="4" :step="0.1" />
-          <n-input-number
-            v-model:value="zoom"
-            class="svg-zoom-input"
-            :min="0.2"
-            :max="4"
-            :step="0.1"
-            :show-button="false"
-          />
-        </div>
+            <div style="width: 12px"></div>
 
-        <canvas ref="canvasRef" class="svg-canvas" :style="canvasStyle"></canvas>
+            <label class="svg-preview-zoom-label" :style="labelStyle">{{
+              t('tools.svg-preview.canvas.label', 'Canvas')
+            }}</label>
+            <n-input-number
+              v-model:value="canvasSize"
+              class="svg-zoom-input"
+              :min="50"
+              :max="2000"
+              :step="10"
+              :show-button="false"
+            />
+          </div>
+
+          <div class="control-row">
+            <label class="svg-preview-zoom-label" :style="labelStyle">{{
+              t('tools.svg-preview.background.label', 'Background')
+            }}</label>
+            <div class="color-wrapper">
+              <n-color-picker v-model:value="backgroundColor" size="small" placement="bottom-end" />
+            </div>
+            <div class="svg-presets" flex gap-2>
+              <button
+                v-for="c in presetColors"
+                :key="c"
+                type="button"
+                class="preset-swatch"
+                :class="{ 'preset-transparent': c === 'transparent' }"
+                :style="c === 'transparent' ? {} : { background: c }"
+                @click="() => setBg(c)"
+                :title="c"
+              ></button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="flex flex-col gap-2">
-        <c-button @click="copy()">
-          {{ t('tools.svg-preview.copy', 'Copy SVG') }}
-        </c-button>
-        <c-button :style="downloadButtonStyle" class="svg-download-button" @click="downloadPng()">
-          {{ t('tools.svg-preview.download', 'Download PNG') }}
-        </c-button>
-      </div>
+    </div>
+
+    <div flex justify-center gap-3>
+      <c-button @click="copy()">
+        {{ t('tools.svg-preview.copy', 'Copy SVG') }}
+      </c-button>
+      <c-button :style="downloadButtonStyle" class="svg-download-button" @click="downloadPng()">
+        {{ t('tools.svg-preview.download', 'Download PNG') }}
+      </c-button>
+    </div>
+  </div>
+  <div>
+    <div class="right-canvas" style="flex: 1; display: flex; align-items: center; justify-content: center">
+      <canvas ref="canvasRef" class="svg-canvas" :style="canvasStyle"></canvas>
     </div>
   </div>
 </template>
@@ -263,9 +343,16 @@ function downloadPng() {
 }
 .svg-preview-controls {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.control-row {
+  display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 8px;
+  flex-wrap: wrap;
+  width: 100%;
 }
 .svg-preview-zoom-label {
   margin-right: 8px;
@@ -282,5 +369,55 @@ function downloadPng() {
   max-width: 100%;
   height: auto;
   display: block;
+}
+
+.svg-canvas {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #d1d5db;
+}
+.svg-presets {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.preset-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+}
+.preset-transparent {
+  background-image: linear-gradient(45deg, #e9e9e9 25%, transparent 25%),
+    linear-gradient(-45deg, #e9e9e9 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e9e9e9 75%),
+    linear-gradient(-45deg, transparent 75%, #e9e9e9 75%);
+  background-size: 8px 8px;
+  background-position:
+    0 0,
+    0 4px,
+    4px -4px,
+    -4px 0;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+.left-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 320px;
+}
+.svg-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.right-canvas {
+  padding-left: 16px;
+}
+.color-wrapper {
+  width: 120px;
+}
+.color-wrapper ::v-deep .n-color-picker {
+  width: 100%;
 }
 </style>
