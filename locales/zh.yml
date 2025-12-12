@@ -122,6 +122,20 @@ tools:
     title: SVG 占位符生成器
     description: 生成 svg 图像以用作应用程序中的占位符。
 
+  svg-preview:
+    title: SVG 预览
+    description: 粘贴 SVG 标记并在画布上实时预览。您可以复制 SVG 或将其下载为 PNG。
+    label: SVG 标记
+    placeholder: 在此粘贴 SVG 代码（以 <svg ...> 开头）
+    preview: 预览
+    copy: 复制 SVG
+    download: 下载 PNG
+    zoom:
+      label: 缩放
+      tooltip: 调整预览缩放级别
+    emptyDownloadConfirmation: '当前没有 SVG 内容。是否仍要下载空白图片？'
+    downloadError: '下载图片失败'
+
   json-to-csv:
     title: JSON 转 CSV
     description: 使用自动标头检测将JSON转换为CSV。

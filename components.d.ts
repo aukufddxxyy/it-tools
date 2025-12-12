@@ -200,6 +200,7 @@ declare module '@vue/runtime-core' {
     SqlPrettify: typeof import('./src/tools/sql-prettify/sql-prettify.vue')['default']
     StringObfuscator: typeof import('./src/tools/string-obfuscator/string-obfuscator.vue')['default']
     SvgPlaceholderGenerator: typeof import('./src/tools/svg-placeholder-generator/svg-placeholder-generator.vue')['default']
+    'SvgPreview.tool': typeof import('./src/tools/svg-preview/svg-preview.tool.vue')['default']
     TemperatureConverter: typeof import('./src/tools/temperature-converter/temperature-converter.vue')['default']
     TextareaCopyable: typeof import('./src/components/TextareaCopyable.vue')['default']
     TextDiff: typeof import('./src/tools/text-diff/text-diff.vue')['default']

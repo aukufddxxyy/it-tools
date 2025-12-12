@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from 'vue-router';
-import { NGlobalStyle, NMessageProvider, NNotificationProvider, darkTheme } from 'naive-ui';
+import { NGlobalStyle, NMessageProvider, NNotificationProvider, NDialogProvider, darkTheme } from 'naive-ui';
 import { darkThemeOverrides, lightThemeOverrides } from './themes';
 import { layouts } from './layouts';
 import { useStyleStore } from './stores/style.store';
@@ -25,9 +25,11 @@ syncRef(
     <NGlobalStyle />
     <NMessageProvider placement="bottom">
       <NNotificationProvider placement="bottom-right">
-        <component :is="layout">
-          <RouterView />
-        </component>
+        <NDialogProvider>
+          <component :is="layout">
+            <RouterView />
+          </component>
+        </NDialogProvider>
       </NNotificationProvider>
     </NMessageProvider>
   </n-config-provider>

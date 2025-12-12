@@ -123,6 +123,20 @@ tools:
     title: SVG placeholder generator
     description: Generate svg images to use as a placeholder in your applications.
 
+  svg-preview:
+    title: SVG preview
+    description: Paste an SVG markup and preview it rendered on a canvas. You can copy the SVG or download it as PNG.
+    label: SVG markup
+    placeholder: Paste SVG code here (starts with <svg ...>)
+    preview: Preview
+    copy: Copy SVG
+    download: Download PNG
+    zoom:
+      label: Zoom
+      tooltip: Adjust the preview zoom level
+    emptyDownloadConfirmation: 'There is no SVG content. Do you want to download an empty image?'
+    downloadError: 'Failed to download image'
+
   json-to-csv:
     title: JSON to CSV
     description: Convert JSON to CSV with automatic header detection.

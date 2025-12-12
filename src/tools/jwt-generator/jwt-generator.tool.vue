@@ -36,14 +36,12 @@ watch(
     console.error('Decoded secret:', decodedSecret);
 
     try {
-      const token = await new jose.SignJWT(parsedPayload)
+      jwt.value = await new jose.SignJWT(parsedPayload)
         .setProtectedHeader({ alg: alg.value, typ: 'JWT' })
         .setIssuedAt(parsedPayload.iat || undefined)
         .setExpirationTime(parsedPayload.exp || undefined)
         .sign(decodedSecret);
-      jwt.value = token;
-    }
-    catch (e) {
+    } catch (e) {
       jwt.value = `Error: ${(e as Error).message}`;
     }
   },
