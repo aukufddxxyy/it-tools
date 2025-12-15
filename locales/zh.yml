@@ -151,6 +151,7 @@ tools:
     description: 检测 JSON 数组中每个对象包含的所有字段，并从所有项中删除所选字段。
     inputLabel: 输入 JSON 数组
     detect: 检测字段
+    copy: 复制结果 JSON
     fields: 检测到的字段
     selectAll: 全选
     clear: 清除选择

@@ -153,6 +153,7 @@ tools:
     inputLabel: Input JSON array
     detect: Detect fields
     fields: Fields found
+    copy: Copy result JSON
     selectAll: Select all
     clear: Clear selection
     remove: Remove selected fields
