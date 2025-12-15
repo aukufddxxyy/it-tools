@@ -147,6 +147,22 @@ tools:
     title: JSON to CSV
     description: Convert JSON to CSV with automatic header detection.
 
+  json-field-remover:
+    title: JSON Field Remover
+    description: Detect all fields present in each object of a JSON array and remove selected fields from all items.
+    inputLabel: Input JSON array
+    detect: Detect fields
+    fields: Fields found
+    copy: Copy result JSON
+    selectAll: Select all
+    clear: Clear selection
+    remove: Remove selected fields
+    invalidJson: Provided input is not valid JSON
+    invalidArray: Provided JSON is not an array of objects
+    noFields: No object fields were found in the provided array
+    invert: Invert selection
+    searchPlaceholder: Search fields...
+
   camera-recorder:
     title: Camera recorder
     description: Take a picture or record a video from your webcam or camera.

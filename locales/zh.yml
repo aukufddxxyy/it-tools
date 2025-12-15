@@ -146,6 +146,22 @@ tools:
     title: JSON 转 CSV
     description: 使用自动标头检测将JSON转换为CSV。
 
+  json-field-remover:
+    title: JSON 字段移除器
+    description: 检测 JSON 数组中每个对象包含的所有字段，并从所有项中删除所选字段。
+    inputLabel: 输入 JSON 数组
+    detect: 检测字段
+    copy: 复制结果 JSON
+    fields: 检测到的字段
+    selectAll: 全选
+    clear: 清除选择
+    remove: 删除选中字段
+    invalidJson: 输入不是有效的 JSON
+    invalidArray: 提供的 JSON 不是对象数组
+    noFields: 在提供的数组中未发现任何对象字段
+    invert: 反选
+    searchPlaceholder: 搜索字段...
+
   camera-recorder:
     title: 摄像机记录器
     description: 从网络摄像头或照相机拍摄照片或录制视频。
