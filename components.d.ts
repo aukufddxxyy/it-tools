@@ -205,6 +205,7 @@ declare module '@vue/runtime-core' {
     'SvgPreview.tool': typeof import('./src/tools/svg-preview/svg-preview.tool.vue')['default']
     TemperatureConverter: typeof import('./src/tools/temperature-converter/temperature-converter.vue')['default']
     TextareaCopyable: typeof import('./src/components/TextareaCopyable.vue')['default']
+    TextCompressor: typeof import('./src/tools/text-compressor/text-compressor.vue')['default']
     TextDiff: typeof import('./src/tools/text-diff/text-diff.vue')['default']
     TextStatistics: typeof import('./src/tools/text-statistics/text-statistics.vue')['default']
     TextToBinary: typeof import('./src/tools/text-to-binary/text-to-binary.vue')['default']
