@@ -82,6 +82,7 @@ import { tool as svgPlaceholderGenerator } from './svg-placeholder-generator';
 import { tool as svgPreview } from './svg-preview';
 import { tool as temperatureConverter } from './temperature-converter';
 import { tool as textStatistics } from './text-statistics';
+import { tool as textCompressor } from './text-compressor';
 import { tool as tokenGenerator } from './token-generator';
 import type { ToolCategory } from './tools.types';
 import { tool as urlEncoder } from './url-encoder';
@@ -165,10 +166,10 @@ export const toolsByCategory: ToolCategory[] = [
       gitMemo,
       randomPortGenerator,
       crontabGenerator,
-        jsonViewer,
-        jsonMinify,
-        jsonToCsv,
-        jsonFieldRemover,
+      jsonViewer,
+      jsonMinify,
+      jsonToCsv,
+      jsonFieldRemover,
       sqlPrettify,
       chmodCalculator,
       dockerRunToDockerComposeConverter,
@@ -208,6 +209,7 @@ export const toolsByCategory: ToolCategory[] = [
       textDiff,
       numeronymGenerator,
       asciiTextDrawer,
+      textCompressor,
     ],
   },
   {
@@ -218,5 +220,5 @@ export const toolsByCategory: ToolCategory[] = [
 
 export const tools = toolsByCategory.flatMap(({ components }) => components);
 export const toolsWithCategory = toolsByCategory.flatMap(({ components, name }) =>
-  components.map(tool => ({ category: name, ...tool })),
+  components.map((tool) => ({ category: name, ...tool })),
 );
