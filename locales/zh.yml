@@ -446,3 +446,10 @@ tools:
   text-to-binary:
     title: 文本到 ASCII 二进制
     description: 将文本转换为其 ASCII 二进制表示形式，反之亦然。
+
+  text-compressor:
+    title: 文本压缩器
+    description: 通过移除换行并修剪每行首尾空白，将多行文本压缩为单行。
+    inputLabel: 包含换行的文本
+    inputPlaceholder: 在此粘贴多行文本...
+    outputLabel: 压缩后的文本（单行）
