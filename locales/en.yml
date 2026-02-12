@@ -450,3 +450,10 @@ tools:
   text-to-binary:
     title: Text to ASCII binary
     description: Convert text to its ASCII binary representation and vice-versa.
+
+  text-compressor:
+    title: Text compressor
+    description: Compress multiline text into a single line by removing newlines and trimming each line.
+    inputLabel: Your text with newlines
+    inputPlaceholder: Paste your multiline text here...
+    outputLabel: Compressed text (single line)
